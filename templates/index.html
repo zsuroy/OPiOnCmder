@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Relay Control</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        #control-interface {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .input-group input {
+            border: none;
+            background-color: transparent;
+            margin: 0 5px;
+            padding: 5px;
+            width: 50px;
+            text-align: center;
+        }
+
+        .input-group input:focus {
+            outline: none;
+        }
+
+        button {
+            padding: 1rem 2rem;
+            margin: 0.5rem;
+            font-size: 1.2rem;
+            border-radius: 0.3rem;
+            border: none;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            cursor: pointer;
+            opacity: 0.9;
+        }
+        .on {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .off {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>GPIO Control Interface</h1>
+    <div id="control-interface">
+      <div class="input-group">
+        <label for="gpio-group">Group:</label>
+        <input type="number" id="gpio-group" name="group" value="1" min="0">
+      </div>
+      <div class="input-group">
+        <label for="gpio-pin">Pin:</label>
+        <input type="number" id="gpio-pin" name="pin" value="18" min="0">
+      </div>
+    </div>
+    <div id="control-interface">
+      <button class="on button" onclick="controlGpio('on')">Turn On</button>
+      <button class="off button" onclick="controlGpio('off')">Turn Off</button>
+    </div>
+
+    <h1>Fan Speed Adjustment</h1>
+    <div id="fanSpeedControl">
+        <input type="range" id="fanSpeed" name="fanSpeed" min="0" max="100" value="0" oninput="updateSpeedValue(this.value)" onchange="updateSpeedValue(this.value)">
+        <span id="fanSpeedValue">0</span>%
+        <button class="on button" onclick="applyFanSpeed()">Apply</button>
+        <hr />
+        <button onclick="fetchFanStatus()">Get Fan Status</button>
+        <p>Fan Mode: <span id="fanMode">N/A</span></p>
+        <p>Fan Speed: <span id="currentFanSpeed">N/A</span>%</p>
+    </div>
+
+
+</body>
+
+<script type="text/javascript">
+    function controlGpio(state) {
+    const group = document.getElementById('gpio-group').value;
+    const pin = document.getElementById('gpio-pin').value;
+
+    fetch('/control', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ action: state, group: group, pin: pin })
+    })
+    .then(response => response.json())
+    .then(data => {
+      // 显示服务器响应的消息
+      alert(`Group ${group} Pin ${pin} Turn ${state}: ${data.message}`);
+    })
+    .catch(error => {
+      // 处理任何网络错误
+      alert(`Network Error: ${error}`);
+    });
+    }
+
+    function updateSpeedValue(value) {
+      document.getElementById("fanSpeedValue").textContent = value;
+    }
+
+    function applyFanSpeed() {
+      const speed = document.getElementById("fanSpeed").value;
+
+      fetch('/fan-speed', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ speed: speed })
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message);
+      })
+      .catch(error => {
+        alert(`Error: ${error}`);
+      });
+    }
+
+    function fetchFanStatus(){
+      fetch('/fan-status')
+      .then(response => response.json())
+      .then(data => {
+        if(data.status === 'success'){
+          document.getElementById('fanMode').textContent = data.pwm_mode;
+          document.getElementById('currentFanSpeed').textContent = data.pwm_duty_ratio;
+          // Update Slider and Status Text
+          const slider = document.getElementById('fanSpeed');
+          const speedDisplay = document.getElementById('fanSpeedValue');
+          slider.value = data.pwm_duty_ratio;
+          speedDisplay.textContent = data.pwm_duty_ratio;
+        }else{
+          alert(data.message);
+        }
+      })
+      .catch(error => {
+        alert(`Error: ${error}`);
+      });
+    }
+</script>
+</html>
