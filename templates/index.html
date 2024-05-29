@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Relay Control</title>
+    <title>OPi Commander</title>
     <style>
         body {
             display: flex;
@@ -60,10 +60,31 @@
             background-color: #f44336;
             color: white;
         }
+
+        .footer-container {
+          text-align: center; /* 文本居中 */
+          padding: 20px 0; /* 增加一些填充在顶部和底部 */
+          background-color: #f2f2f2; /* 灰色背景 */
+          color: #333; /* 深色文字 */
+          margin-top: 30px; /* 在内容和页脚之间增加一些边距 */
+          font-size: 0.8em; /* 调整字体大小 */
+          border-top: 1px solid #ddd; /* 在内容上方添加一个边界线 */
+        }
+
+        footer {
+          width: 100%; /* 确保页脚宽度与浏览器宽度一样 */
+          box-sizing: border-box; /* 确保填充不影响页脚宽度 */
+          position: relative; /* 便于之后的任何定位需求 */
+          bottom: 0; /* 如果你希望页脚总是位于视口底部，则使用 */
+        }
     </style>
 </head>
 
 <body>
+    <header>
+            <img src="{{ url_for('static', filename='img/orange.png') }}" alt="Logo">
+    </header>
+
     <h1>GPIO Control Interface</h1>
     <div id="control-interface">
       <div class="input-group">
@@ -90,6 +111,12 @@
         <p>Fan Mode: <span id="fanMode">N/A</span></p>
         <p>Fan Speed: <span id="currentFanSpeed">N/A</span>%</p>
     </div>
+
+    <footer>
+      <div class="footer-container">
+          <p>&copy; 2024 <a href="https://suroy.cn">Suroy</a>. All rights reserved. ｜ Code: <a href="https://github.com/zsuroy">Github</a></p>
+      </div>
+    </footer>
 
 
 </body>

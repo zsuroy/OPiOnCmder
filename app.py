@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, jsonify
 from utils.fan_utils import FanUtils
 from utils.gpio_utils import GpioUtils
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='', static_folder='static')
 
 
 @app.route('/')
